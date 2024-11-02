@@ -2,6 +2,8 @@
 import { useEffect } from 'react';
 
 function GameLoop({ canvasRef, balls }) {
+
+
     useEffect(() => {
         if (!canvasRef.current) return;
         const ctx = canvasRef.current.getContext('2d');

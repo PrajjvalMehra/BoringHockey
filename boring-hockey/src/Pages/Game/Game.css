@@ -22,6 +22,7 @@ html, body {
     position: relative; /* Ensure it can be centered */
     transform: scale(1); /* Default scale */
     transform-origin: top left; /* Scale from the top left corner */
+    background-color: white;
 }
 
 .canvas-container::before,

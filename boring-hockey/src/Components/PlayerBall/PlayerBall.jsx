@@ -1,14 +1,19 @@
 /* eslint-disable react/prop-types */
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import Ball from '../../engine/Ball';
-import GameLoop from '../GameLoop/GameLoop';
+import GameLoop from '../../engine/GameLoop/GameLoop';
 
 function PlayerBall(props) {
     const [balls, setBalls] = useState([
-        new Ball(230, 50, 30, 'red'), // Near the top goal post
-        new Ball(230, 650, 30, 'blue') // Near the bottom goal post
+        new Ball(230, 50, 30, 'red'),
+        new Ball(230, 650, 30, 'blue'),
+        new Ball(230, 350, 20, 'green')
     ]);
-    const [draggingBall, setDraggingBall] = useState(null);
+    const [activeBall, setActiveBall] = useState(null);
+    const [endTime, setEndTime] = useState(null);
+    const [initialCoordinates, setInitialCoordinates] = useState(null);
+
+
 
     useEffect(() => {
         const canvas = props.canvasRef.current;
@@ -18,34 +23,78 @@ function PlayerBall(props) {
             const rect = canvas.getBoundingClientRect();
             const mouseX = e.clientX - rect.left;
             const mouseY = e.clientY - rect.top;
-
             balls.forEach((ball, index) => {
                 const dx = mouseX - ball.x;
                 const dy = mouseY - ball.y;
+                console.log('Ball coordinates:', ball.x, ball.y, 'Radius:', ball.radius);
                 if (dx * dx + dy * dy <= ball.radius * ball.radius) {
-                    setDraggingBall(index);
+                    if (ball.color === 'green') return;
+                    setActiveBall(index);
+                    setEndTime(performance.now());
+                    setInitialCoordinates({ x: ball.x, y: ball.y });
                 }
             });
         };
 
         const handleMouseMove = (e) => {
-            if (draggingBall !== null) {
+            if (activeBall !== null) {
                 const rect = canvas.getBoundingClientRect();
                 const mouseX = e.clientX - rect.left;
                 const mouseY = e.clientY - rect.top;
 
                 setBalls((prevBalls) => {
                     const newBalls = [...prevBalls];
-                    const ball = newBalls[draggingBall];
-                    ball.ax = (mouseX - ball.x) * 0.005; // Reduced multiplier for smoother acceleration
-                    ball.ay = (mouseY - ball.y) * 0.005; // Reduced multiplier for smoother acceleration
+                    const ball = newBalls[activeBall];
+                    ball.x = mouseX;
+                    ball.y = mouseY;
+
+                    // Check for collisions with other balls
+                    for (let i = 0; i < newBalls.length; i++) {
+                        if (i !== activeBall) {
+                            const otherBall = newBalls[i];
+                            const dx = ball.x - otherBall.x;
+                            const dy = ball.y - otherBall.y;
+                            const distance = Math.sqrt(dx * dx + dy * dy);
+                            const minDistance = ball.radius + otherBall.radius;
+
+                            if (distance < minDistance) {
+                                // Adjust position to prevent overlap
+                                const angle = Math.atan2(dy, dx);
+                                const overlap = minDistance - distance;
+                                ball.x += Math.cos(angle) * overlap;
+                                ball.y += Math.sin(angle) * overlap;
+                            }
+                        }
+                    }
+
                     return newBalls;
                 });
             }
         };
 
         const handleMouseUp = () => {
-            setDraggingBall(null);
+            setEndTime(performance.now() - endTime);
+
+            if (activeBall !== null) {
+                const dx = balls[activeBall].x - initialCoordinates.x;
+                const dy = balls[activeBall].y - initialCoordinates.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                const velocity = distance / endTime;
+                const angle = Math.atan2(dy, dx);
+                const acceleration = velocity / endTime;
+
+                setBalls((prevBalls) => {
+                    const newBalls = [...prevBalls];
+                    newBalls[activeBall].vx = velocity * Math.cos(angle);
+                    newBalls[activeBall].vy = velocity * Math.sin(angle);
+                    newBalls[activeBall].ax = acceleration * Math.cos(angle);
+                    newBalls[activeBall].ay = acceleration * Math.sin(angle);
+                    return newBalls;
+                });
+
+                console.log('Velocity:', velocity, 'Angle:', angle, 'Acceleration:', acceleration);
+            }
+            setActiveBall(null);
         };
 
         canvas.addEventListener('mousedown', handleMouseDown);
@@ -57,51 +106,7 @@ function PlayerBall(props) {
             canvas.removeEventListener('mousemove', handleMouseMove);
             canvas.removeEventListener('mouseup', handleMouseUp);
         };
-    }, [balls, draggingBall, props.canvasRef]);
-
-    useEffect(() => {
-        const updateBalls = () => {
-            setBalls((prevBalls) => {
-                return prevBalls.map((ball) => {
-                    ball.vx += ball.ax;
-                    ball.vy += ball.ay;
-
-                    // Apply friction to velocity
-                    ball.vx *= 0.98; // Friction factor for x velocity
-                    ball.vy *= 0.98; // Friction factor for y velocity
-
-                    ball.x += ball.vx;
-                    ball.y += ball.vy;
-
-                    // Boundary checks
-                    if (ball.x - ball.radius < 0) {
-                        ball.x = ball.radius;
-                        ball.vx = -ball.vx;
-                    } else if (ball.x + ball.radius > 500) {
-                        ball.x = 500 - ball.radius;
-                        ball.vx = -ball.vx;
-                    }
-
-                    if (ball.y - ball.radius < 0) {
-                        ball.y = ball.radius;
-                        ball.vy = -ball.vy;
-                    } else if (ball.y + ball.radius > 700) {
-                        ball.y = 700 - ball.radius;
-                        ball.vy = -ball.vy;
-                    }
-
-                    // Reset acceleration
-                    ball.ax = 0;
-                    ball.ay = 0;
-
-                    return ball;
-                });
-            });
-        };
-
-        const interval = setInterval(updateBalls, 16); // Approximately 60 FPS
-        return () => clearInterval(interval);
-    }, []);
+    }, [balls, activeBall, setBalls, setActiveBall, setEndTime]);
 
     return (
         <>
