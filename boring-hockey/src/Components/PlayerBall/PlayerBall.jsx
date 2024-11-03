@@ -47,57 +47,6 @@ function PlayerBall(props) {
                     const ball = newBalls[activeBall];
                     ball.x = mouseX;
                     ball.y = mouseY;
-
-                    // Check for collisions with other balls
-                    for (let i = 0; i < newBalls.length; i++) {
-                        if (i !== activeBall) {
-                            const otherBall = newBalls[i];
-                            const dx = ball.x - otherBall.x;
-                            const dy = ball.y - otherBall.y;
-                            const distance = Math.sqrt(dx * dx + dy * dy);
-                            const minDistance = ball.radius + otherBall.radius;
-
-                            if (distance < minDistance) {
-                                // console.log(ball.color, 'collided with', otherBall.color);
-                                // Adjust position to prevent overlap
-                                const angle = Math.atan2(dy, dx);
-                                const overlap = minDistance - distance;
-                                const thresholdDistance = 10000; // Adjust this value as needed
-
-                                ball.x += Math.cos(angle) * overlap;
-                                ball.y += Math.sin(angle) * overlap;
-
-                                if (activeBall !== null) {
-                                    const dx = balls[activeBall].x - initialCoordinates.x;
-                                    const dy = balls[activeBall].y - initialCoordinates.y;
-                                    const distance = Math.sqrt(dx * dx + dy * dy);
-
-                                    if (distance > thresholdDistance) {
-                                        const velocity = distance / endTime;
-                                        const angle = Math.atan2(dy, dx);
-                                        const acceleration = velocity / endTime;
-
-                                        setBalls((prevBalls) => {
-                                            const newBalls = [...prevBalls];
-                                            newBalls[activeBall].vx = velocity * Math.cos(angle);
-                                            newBalls[activeBall].vy = velocity * Math.sin(angle);
-                                            newBalls[activeBall].ax = acceleration * Math.cos(angle);
-                                            newBalls[activeBall].ay = acceleration * Math.sin(angle);
-                                            return newBalls;
-                                        });
-
-
-
-                                        ball.vx = 0;
-                                        ball.vy = 0;
-                                        ball.ax = 0;
-                                        ball.ay = 0;
-                                    }
-                                }
-                            }
-                        }
-                    }
-
                     return newBalls;
                 });
             }
@@ -105,40 +54,6 @@ function PlayerBall(props) {
 
         const handleMouseUp = () => {
             setEndTime(performance.now() - endTime);
-
-            // if (activeBall !== null) {
-            //     const dx = balls[activeBall].x - initialCoordinates.x;
-            //     const dy = balls[activeBall].y - initialCoordinates.y;
-            //     const distance = Math.sqrt(dx * dx + dy * dy);
-            //     const velocity = distance / endTime;
-            //     const angle = Math.atan2(dy, dx);
-            //     const acceleration = velocity / endTime;
-
-            //     setBalls((prevBalls) => {
-            //         const newBalls = [...prevBalls];
-            //         newBalls[activeBall].vx = velocity * Math.cos(angle);
-            //         newBalls[activeBall].vy = velocity * Math.sin(angle);
-            //         newBalls[activeBall].ax = acceleration * Math.cos(angle);
-            //         newBalls[activeBall].ay = acceleration * Math.sin(angle);
-            //         return newBalls;
-            //     });
-
-            //     console.log('Velocity:', velocity, 'Angle:', angle, 'Acceleration:', acceleration);
-            // }
-            // if (activeBall !== null) {
-            //     setBalls((prevBalls) => {
-            //         const newBalls = [...prevBalls];
-            //         newBalls[activeBall].vx = 0;
-            //         newBalls[activeBall].vy = 0;
-            //         newBalls[activeBall].ax = 0;
-            //         newBalls[activeBall].ay = 0;
-            //         return newBalls;
-            //     });
-            // }
-
-
-
-
             setActiveBall(null);
         };
 

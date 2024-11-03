@@ -19,14 +19,14 @@ class Ball {
     }
 
     updatePosition(canvasWidth, canvasHeight) {
-        // if (this.color === 'red' || this.color === 'blue') return;
+        if (this.color === 'red' || this.color === 'blue') return;
         // if the ball is not red or blue, it is the puck. And if it is the puck. it should slow down over time and eventually stop. 
         // if (this.color === 'green') {
         //     this.vx *= 0.99;
         //     this.vy *= 0.99;
 
         // }
-
+        // console.log(this.color, this.vx, this.vy);
 
         this.vx += this.ax;
         this.vy += this.ay;
