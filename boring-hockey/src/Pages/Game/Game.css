@@ -29,7 +29,7 @@ html, body {
 .canvas-container::after {
     content: '';
     position: absolute;
-    width: 80px; /* Width of the goal post */
+    width: 150px; /* Width of the goal post */
     height: 20px; /* Height of the raised border */
     background-color: black;
 }

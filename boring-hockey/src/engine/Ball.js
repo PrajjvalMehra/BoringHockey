@@ -19,7 +19,27 @@ class Ball {
     }
 
     updatePosition(canvasWidth, canvasHeight) {
-        // No movement logic needed for now
+        // if (this.color === 'red' || this.color === 'blue') return;
+        // if the ball is not red or blue, it is the puck. And if it is the puck. it should slow down over time and eventually stop. 
+        // if (this.color === 'green') {
+        //     this.vx *= 0.99;
+        //     this.vy *= 0.99;
+
+        // }
+
+
+        this.vx += this.ax;
+        this.vy += this.ay;
+        this.x += this.vx;
+        this.y += this.vy;
+
+        // Bounce off the walls
+        if (this.x - this.radius < 0 || this.x + this.radius > canvasWidth) {
+            this.vx *= -1;
+        }
+        if (this.y - this.radius < 0 || this.y + this.radius > canvasHeight) {
+            this.vy *= -1;
+        }
     }
 }
 

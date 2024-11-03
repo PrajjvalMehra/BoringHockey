@@ -10,7 +10,7 @@ function GameLoop({ canvasRef, balls }) {
         if (!ctx) return;
 
         const draw = () => {
-            ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height); // Clear the canvas
+            ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
             balls.forEach(ball => {
                 ball.updatePosition(ctx.canvas.width, ctx.canvas.height);
@@ -22,7 +22,7 @@ function GameLoop({ canvasRef, balls }) {
 
         draw();
 
-        return () => cancelAnimationFrame(draw); // Cleanup on unmount
+        return () => cancelAnimationFrame(draw);
     }, [canvasRef, balls]);
 
     return null;
