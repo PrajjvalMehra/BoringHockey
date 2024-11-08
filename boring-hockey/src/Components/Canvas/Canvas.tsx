@@ -1,10 +1,15 @@
 // src/CanvasComponent.js
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useContext } from 'react';
 import PlayerBall from '../PlayerBall/PlayerBall.jsx';
+import GameContext from '../../context/GameContext.jsx';
 
 const Canvas = () => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const containerRef = useRef<HTMLDivElement>(null);
+    const { state, setState } = useContext(GameContext);
+
+    console.log(state);
+
 
     useEffect(() => {
         const canvas = canvasRef.current;

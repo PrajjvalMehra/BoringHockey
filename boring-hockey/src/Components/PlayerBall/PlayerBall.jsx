@@ -26,7 +26,6 @@ function PlayerBall(props) {
             balls.forEach((ball, index) => {
                 const dx = mouseX - ball.x;
                 const dy = mouseY - ball.y;
-                console.log('Ball coordinates:', ball.x, ball.y, 'Radius:', ball.radius);
                 if (dx * dx + dy * dy <= ball.radius * ball.radius) {
                     if (ball.color === 'green') return;
                     setActiveBall(index);
