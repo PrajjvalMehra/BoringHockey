@@ -26,7 +26,6 @@ function PlayerBall(props) {
             balls.forEach((ball, index) => {
                 const dx = mouseX - ball.x;
                 const dy = mouseY - ball.y;
-                console.log('Ball coordinates:', ball.x, ball.y, 'Radius:', ball.radius);
                 if (dx * dx + dy * dy <= ball.radius * ball.radius) {
                     if (ball.color === 'green') return;
                     setActiveBall(index);
@@ -47,26 +46,6 @@ function PlayerBall(props) {
                     const ball = newBalls[activeBall];
                     ball.x = mouseX;
                     ball.y = mouseY;
-
-                    // Check for collisions with other balls
-                    for (let i = 0; i < newBalls.length; i++) {
-                        if (i !== activeBall) {
-                            const otherBall = newBalls[i];
-                            const dx = ball.x - otherBall.x;
-                            const dy = ball.y - otherBall.y;
-                            const distance = Math.sqrt(dx * dx + dy * dy);
-                            const minDistance = ball.radius + otherBall.radius;
-
-                            if (distance < minDistance) {
-                                // Adjust position to prevent overlap
-                                const angle = Math.atan2(dy, dx);
-                                const overlap = minDistance - distance;
-                                ball.x += Math.cos(angle) * overlap;
-                                ball.y += Math.sin(angle) * overlap;
-                            }
-                        }
-                    }
-
                     return newBalls;
                 });
             }
@@ -74,26 +53,6 @@ function PlayerBall(props) {
 
         const handleMouseUp = () => {
             setEndTime(performance.now() - endTime);
-
-            if (activeBall !== null) {
-                const dx = balls[activeBall].x - initialCoordinates.x;
-                const dy = balls[activeBall].y - initialCoordinates.y;
-                const distance = Math.sqrt(dx * dx + dy * dy);
-                const velocity = distance / endTime;
-                const angle = Math.atan2(dy, dx);
-                const acceleration = velocity / endTime;
-
-                setBalls((prevBalls) => {
-                    const newBalls = [...prevBalls];
-                    newBalls[activeBall].vx = velocity * Math.cos(angle);
-                    newBalls[activeBall].vy = velocity * Math.sin(angle);
-                    newBalls[activeBall].ax = acceleration * Math.cos(angle);
-                    newBalls[activeBall].ay = acceleration * Math.sin(angle);
-                    return newBalls;
-                });
-
-                console.log('Velocity:', velocity, 'Angle:', angle, 'Acceleration:', acceleration);
-            }
             setActiveBall(null);
         };
 

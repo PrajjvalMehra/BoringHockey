@@ -1,13 +1,16 @@
 
 import './Game.css';
 import Canvas from '../../Components/Canvas/Canvas';
+import { GameProvider } from '../../context/GameContext';
 
 
 function Game() {
   return (
-    <div className="canvas-root">
-      <Canvas />
-    </div>
+    <GameProvider>
+      <div className="canvas-root">
+        <Canvas />
+      </div>
+    </GameProvider>
   );
 }
 
