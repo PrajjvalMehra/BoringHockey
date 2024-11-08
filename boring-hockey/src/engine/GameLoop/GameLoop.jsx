@@ -7,8 +7,8 @@ function GameLoop({ canvasRef, balls }) {
         const ctx = canvasRef.current.getContext('2d');
         if (!ctx) return;
 
-        const friction = 0.99996; // Friction coefficient to slow down the green ball gradually
-        
+        const friction = 0.999991; // Friction coefficient to slow down the green ball gradually
+
         const resolveCollision = (ball1, ball2) => {
             const dx = ball1.x - ball2.x;
             const dy = ball1.y - ball2.y;
@@ -39,9 +39,8 @@ function GameLoop({ canvasRef, balls }) {
                 if ((ball1.color === 'green' && (ball2.color === 'red' || ball2.color === 'blue')) ||
                     (ball2.color === 'green' && (ball1.color === 'red' || ball1.color === 'blue'))) {
                     const greenBall = ball1.color === 'green' ? ball1 : ball2;
-                    const otherBall = ball1.color === 'green' ? ball2 : ball1;
 
-                    const velocityBoost = -0.005; // Small fixed velocity boost
+                    const velocityBoost = -0.004; // Small fixed velocity boost
                     greenBall.vx += Math.cos(angle) * velocityBoost;
                     greenBall.vy += Math.sin(angle) * velocityBoost;
                 }

@@ -11,11 +11,39 @@ const Canvas = () => {
         const container = containerRef.current;
 
         if (canvas && container) {
+            const ctx = canvas.getContext('2d');
+
             const updateCanvasDimensions = () => {
                 const containerWidth = container.clientWidth;
                 const containerHeight = container.clientHeight;
                 canvas.width = containerWidth;
                 canvas.height = containerHeight;
+
+                // Draw center line
+                if (ctx) {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    
+                    // Vertical center line
+                    ctx.beginPath();
+                    ctx.moveTo(canvas.width / 2, 0);
+                    ctx.lineTo(canvas.width / 2, canvas.height);
+                    ctx.strokeStyle = 'black';
+                    ctx.stroke();
+
+                    // Horizontal center line
+                    ctx.beginPath();
+                    ctx.moveTo(0, canvas.height / 2);
+                    ctx.lineTo(canvas.width, canvas.height / 2);
+                    ctx.strokeStyle = 'black';
+                    ctx.stroke();
+
+                    // Circle in the middle
+                    ctx.beginPath();
+                    ctx.arc(canvas.width / 2, canvas.height / 2, 10, 0, Math.PI * 2);
+                    ctx.fillStyle = 'black';
+                    ctx.fill();
+                    ctx.closePath();
+                }
             };
 
             // Initial dimensions update
@@ -34,8 +62,10 @@ const Canvas = () => {
     return (
         <div className="canvas-root">
             <div className="canvas-container" ref={containerRef}>
-                <canvas ref={canvasRef} />
                 <PlayerBall canvasRef={canvasRef} />
+                {/* <div className="center-line"></div> */}
+                <canvas ref={canvasRef} />
+                {/* <div className="center-circle"></div> */}
             </div>
         </div>
     );
