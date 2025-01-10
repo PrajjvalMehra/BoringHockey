@@ -1,14 +1,17 @@
 /* eslint-disable react/prop-types */
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import Ball from '../../engine/Ball';
 import GameLoop from '../../engine/GameLoop/GameLoop';
+import GameContext from '../../context/GameContext';
 
 function PlayerBall(props) {
-    const [balls, setBalls] = useState([
-        new Ball(230, 50, 30, 'red'),
-        new Ball(230, 650, 30, 'blue'),
-        new Ball(230, 350, 20, 'green')
-    ]);
+    const { balls, setBalls } = useContext(GameContext)
+
+    // const [balls, setBalls] = useState([
+    //     new Ball(230, 50, 30, 'red'),
+    //     new Ball(230, 650, 30, 'blue'),
+    //     new Ball(230, 350, 20, 'green')
+    // ]);
     const [activeBall, setActiveBall] = useState(null);
     const [endTime, setEndTime] = useState(null);
     const [initialCoordinates, setInitialCoordinates] = useState(null);
@@ -69,7 +72,7 @@ function PlayerBall(props) {
 
     return (
         <>
-            <GameLoop canvasRef={props.canvasRef} balls={balls} />
+            <GameLoop canvasRef={props.canvasRef} balls={balls} setBalls={setBalls} />
         </>
     );
 }

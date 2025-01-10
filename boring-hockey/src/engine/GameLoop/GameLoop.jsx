@@ -1,7 +1,10 @@
 /* eslint-disable react/prop-types */
-import { useEffect } from 'react';
+import { useContext, useEffect } from 'react';
+import GameContext from '../../context/GameContext';
+import Ball from '../Ball';
+function GameLoop({ canvasRef, balls, setBalls }) {
+    const { socket } = useContext(GameContext);
 
-function GameLoop({ canvasRef, balls }) {
     useEffect(() => {
         if (!canvasRef.current) return;
         const ctx = canvasRef.current.getContext('2d');
@@ -15,12 +18,10 @@ function GameLoop({ canvasRef, balls }) {
             const distance = Math.sqrt(dx * dx + dy * dy);
             const minDistance = ball1.radius + ball2.radius;
 
-            // Check if the balls are colliding
             if (distance < minDistance) {
                 const angle = Math.atan2(dy, dx);
                 const overlap = minDistance - distance;
 
-                // Prevent overlap only if both balls are not red and blue
                 if (!((ball1.color === 'red' && ball2.color === 'blue') || (ball1.color === 'blue' && ball2.color === 'red'))) {
                     ball1.x += Math.cos(angle) * overlap / 2;
                     ball1.y += Math.sin(angle) * overlap / 2;
@@ -31,11 +32,10 @@ function GameLoop({ canvasRef, balls }) {
                         if (ball.x - ball.radius < 0) ball.x = ball.radius;
                         if (ball.x + ball.radius > canvasRef.current.width) ball.x = canvasRef.current.width - ball.radius;
                         if (ball.y - ball.radius < 0) ball.y = ball.radius;
-                        if (ball.y + ball.radius > canvasRef.current.height) ball.y = canvasRef.current.height - ball.radius;
+                        if (ball.y + ball.radius > canvasRef.current.height) ball.y = ball.radius;
                     });
                 }
 
-                // Add velocity to the green ball if it is struck by the red or blue ball
                 if ((ball1.color === 'green' && (ball2.color === 'red' || ball2.color === 'blue')) ||
                     (ball2.color === 'green' && (ball1.color === 'red' || ball1.color === 'blue'))) {
                     const greenBall = ball1.color === 'green' ? ball1 : ball2;
@@ -45,7 +45,6 @@ function GameLoop({ canvasRef, balls }) {
                     greenBall.vy += Math.sin(angle) * velocityBoost;
                 }
 
-                // Set velocity to 0 if red or blue ball is not in motion
                 [ball1, ball2].forEach(ball => {
                     if ((ball.color === 'red' || ball.color === 'blue') && ball.vx === 0 && ball.vy === 0) {
                         ball.vx = 0;
@@ -61,13 +60,11 @@ function GameLoop({ canvasRef, balls }) {
             balls.forEach((ball, index) => {
                 ball.updatePosition(ctx.canvas.width, ctx.canvas.height);
 
-                // Apply friction to the green ball
                 if (ball.color === 'green') {
                     ball.vx *= friction;
                     ball.vy *= friction;
                 }
 
-                // Check for collisions with other balls
                 for (let i = index + 1; i < balls.length; i++) {
                     resolveCollision(ball, balls[i]);
                 }
@@ -78,10 +75,43 @@ function GameLoop({ canvasRef, balls }) {
             requestAnimationFrame(draw);
         };
 
-        draw();
+        const sendBallPositions = () => {
+            if (socket) {
+                const ballPositions = balls.map(ball => ({
+                    x: ball.x,
+                    y: ball.y,
+                    vx: ball.vx,
+                    vy: ball.vy,
+                    color: ball.color
+                }));
+                socket.emit('updateBallPositions', ballPositions);
+            }
+        };
 
-        return () => cancelAnimationFrame(draw);
-    }, [canvasRef, balls]);
+        const intervalId = setInterval(sendBallPositions, 2000); // Emit every 100ms
+        draw();
+        if (socket) {
+            socket.on('broadcastBallPositions', (newBallPositions) => {
+                console.log("POS")
+                const newBalls = newBallPositions.map(ballData => new Ball(ballData.x, ballData.y, ballData.radius, ballData.color));
+                newBalls.forEach((ball, index) => {
+                    ball.vx = newBallPositions[index].vx;
+                    ball.vy = newBallPositions[index].vy;
+                });
+                setBalls(newBalls);
+            });
+        }
+
+
+        return () => {
+            cancelAnimationFrame(draw);
+            clearInterval(intervalId);
+            if (socket) {
+                socket.off('broadcastBallPositions');
+                // socket.disconnect();
+            }
+        };
+    }, [canvasRef, balls, socket, setBalls]);
 
     return null;
 }
