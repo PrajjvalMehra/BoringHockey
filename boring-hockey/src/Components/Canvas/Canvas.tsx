@@ -8,7 +8,6 @@ const Canvas = () => {
     const containerRef = useRef<HTMLDivElement>(null);
     const { state, setState } = useContext(GameContext);
 
-    console.log(state);
 
 
     useEffect(() => {
