@@ -1,30 +1,31 @@
 /* eslint-disable react/prop-types */
-import { useContext, useEffect } from 'react';
+import { useContext, useEffect, useCallback } from 'react';
 import GameContext from '../../context/GameContext';
-import { updateBallPosition, handleCollisions } from '../utils/gameLoopUtils';
-import { sendBallPositions, handleSocketUpdates } from '../../network/gameNetworkUtils';
+import { updateBallPosition, handleCollisions, friction } from '../utils/gameLoopUtils';
+import { handleSocketUpdates, sendBallPositions } from '../../network/gameNetworkUtils';
+import { debounce } from '../../network/utils';
 
 function GameLoop({ canvasRef, balls, setBalls }) {
     const { socket } = useContext(GameContext);
+
+    // Create a debounced version of sendBallPositions
+    const debouncedSendBallPositions = useCallback(debounce(sendBallPositions, 100), []);
 
     useEffect(() => {
         if (!canvasRef.current) return;
         const ctx = canvasRef.current.getContext('2d');
         if (!ctx) return;
 
-        const friction = 0.999991; // Friction coefficient to slow down the green ball gradually
-
         const draw = () => {
             ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
             balls.forEach((ball, index) => {
                 updateBallPosition(ball, ctx.canvas.width, ctx.canvas.height, friction);
-                handleCollisions(ball, index, balls, canvasRef);
+                handleCollisions(ball, index, balls, canvasRef, socket, debouncedSendBallPositions);
                 ball.drawBall(ctx);
             });
             requestAnimationFrame(draw);
         };
 
-        const intervalId = setInterval(() => sendBallPositions(socket, balls), 2000); // Emit every 2 seconds
         draw();
 
         if (socket) {
@@ -33,12 +34,11 @@ function GameLoop({ canvasRef, balls, setBalls }) {
 
         return () => {
             cancelAnimationFrame(draw);
-            clearInterval(intervalId);
             if (socket) {
                 socket.off('broadcastBallPositions', (newBallPositions) => handleSocketUpdates(newBallPositions, setBalls));
             }
         };
-    }, [canvasRef, balls, socket, setBalls]);
+    }, [canvasRef, balls, socket, setBalls, debouncedSendBallPositions]);
 
     return null;
 }

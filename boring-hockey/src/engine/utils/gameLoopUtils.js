@@ -1,4 +1,7 @@
 import { resolveCollision } from '../utils/collisionUtils';
+import { sendBallPositions } from '../../network/gameNetworkUtils';
+
+export const friction = 0.999991;
 
 export const updateBallPosition = (ball, canvasWidth, canvasHeight, friction) => {
     ball.updatePosition(canvasWidth, canvasHeight);
@@ -8,8 +11,15 @@ export const updateBallPosition = (ball, canvasWidth, canvasHeight, friction) =>
     }
 };
 
-export const handleCollisions = (ball, index, balls, canvasRef) => {
+export const handleCollisions = (ball, index, balls, canvasRef, socket, debouncedSendBallPositions) => {
+    let collisionOccurred = false;
     for (let i = index + 1; i < balls.length; i++) {
-        resolveCollision(canvasRef, ball, balls[i]);
+        const collision = resolveCollision(canvasRef, ball, balls[i]);
+        if (collision) {
+            collisionOccurred = true;
+        }
+    }
+    if (collisionOccurred) {
+        debouncedSendBallPositions(socket, balls);
     }
 };

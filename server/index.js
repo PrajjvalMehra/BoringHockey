@@ -10,7 +10,7 @@ app.use(cors())
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
     cors: {
-        origin: 'http://192.168.127.170:5173', // replace with your frontend URL
+        origin: 'http://192.168.127.170:5174', // replace with your frontend URL
         methods: ['GET', 'POST']
     },
 });
