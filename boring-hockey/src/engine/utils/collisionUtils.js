@@ -37,5 +37,9 @@ export const resolveCollision = (canvasRef, ball1, ball2) => {
                 ball.vy = 0;
             }
         });
+
+        return true; // Collision occurred
     }
+
+    return false; // No collision
 };

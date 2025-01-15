@@ -7,13 +7,15 @@ export const sendBallPositions = (socket, balls) => {
             y: ball.y,
             vx: ball.vx,
             vy: ball.vy,
-            color: ball.color
+            color: ball.color,
+            radius: ball.radius
         }));
         socket.emit('updateBallPositions', ballPositions);
     }
 };
 
 export const handleSocketUpdates = (newBallPositions, setBalls) => {
+    console.log(newBallPositions)
     const newBalls = newBallPositions.map(ballData => new Ball(ballData.x, ballData.y, ballData.radius, ballData.color));
     newBalls.forEach((ball, index) => {
         ball.vx = newBallPositions[index].vx;
