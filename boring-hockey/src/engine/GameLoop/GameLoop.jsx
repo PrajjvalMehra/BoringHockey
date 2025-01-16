@@ -23,6 +23,7 @@ function GameLoop({ canvasRef, balls, setBalls }) {
                 handleCollisions(ball, index, balls, canvasRef, socket, debouncedSendBallPositions);
                 ball.drawBall(ctx);
             });
+            debouncedSendBallPositions(socket, balls); // Emit ball positions at regular intervals
             requestAnimationFrame(draw);
         };
 

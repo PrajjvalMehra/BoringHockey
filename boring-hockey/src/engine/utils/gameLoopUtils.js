@@ -1,5 +1,4 @@
 import { resolveCollision } from '../utils/collisionUtils';
-import { sendBallPositions } from '../../network/gameNetworkUtils';
 
 export const friction = 0.999991;
 
